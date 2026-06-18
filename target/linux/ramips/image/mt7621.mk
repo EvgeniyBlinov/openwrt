@@ -3278,7 +3278,7 @@ define Device/wavlink_wl-wn531ax2
   DEVICE_MODEL := WL-WN531AX2
   DEVICE_PACKAGES += kmod-usb3 kmod-mt7915-firmware
   IMAGE_SIZE := 15040k
-  KERNEL_LOADADDR := 0x83000000
+  KERNEL_LOADADDR := 0x82000000
   KERNEL := kernel-bin | relocate-kernel $(loadaddr-y) | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
