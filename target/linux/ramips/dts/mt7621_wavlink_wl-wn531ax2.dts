@@ -7,7 +7,7 @@
 #include <dt-bindings/leds/common.h>
 
 / {
-	compatible = "wavlink,wl-wn531ax2", "mediatek,mt7621-rfb-nor", "mt7621-rfb-ax-nor", "mediatek,mt7621-soc";
+	compatible = "wavlink,wl-wn531ax2", "mediatek,mt7621-soc";
 	model = "Wavlink WL-WN531AX2";
 
 	aliases {
@@ -18,7 +18,6 @@
 		label-mac-device = &gmac0;
 	};
 
-
 	chosen {
 		bootargs = "console=ttyS0,115200";
 	};
@@ -27,12 +26,13 @@
 		compatible = "gpio-leds";
 
 		wifi {
-			label = "blue:wifi";
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_WLAN;
 			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "phy0tpt";
 		};
 
-		led_status_blue:status_blue {
+		led_status_blue: status_blue {
 			function = LED_FUNCTION_STATUS;
 			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
@@ -72,11 +72,20 @@
 			linux,code = <KEY_RESTART>;
 		};
 	};
-
 };
 
-&i2c {
+&pcie {
 	status = "okay";
+};
+
+&pcie1 {
+	wifi@0,0 {
+		compatible = "mediatek,mt76";
+		reg = <0x0000 0 0 0 0>;
+		nvmem-cells = <&eeprom_factory_0>;
+		nvmem-cell-names = "eeprom";
+		mediatek,disable-radar-background;
+	};
 };
 
 &spi0 {
@@ -85,7 +94,9 @@
 	flash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <0x989680>;
+
+		spi-max-frequency = <10000000>;
+
 		partitions {
 			compatible = "fixed-partitions";
 			#address-cells = <1>;
@@ -122,45 +133,16 @@
 					macaddr_factory_3fffa: macaddr@3fffa {
 						reg = <0x3fffa 0x6>;
 					};
-
 				};
 			};
 
 			partition@90000 {
+				compatible = "denx,uimage";
 				label = "firmware";
 				reg = <0x90000 0xf70000>;
-				compatible = "fixed-partitions";
-				#address-cells = <1>;
-				#size-cells = <1>;
-
-				kernel@0 {
-					reg = <0x0 0x400000>;
-				};
-
-				rootfs@400000 {
-					reg = <0x400000 0xb70000>;
-				};
 			};
 		};
 	};
-};
-
-&pcie {
-	status = "okay";
-};
-
-&pcie1 {
-	wifi@0,0 {
-		compatible = "mediatek,mt76";
-		reg = <0x0000 0 0 0 0>;
-		nvmem-cells = <&eeprom_factory_0>;
-		nvmem-cell-names = "eeprom";
-		mediatek,disable-radar-background;
-	};
-};
-
-&ethernet {
-	pinctrl-0 = <&mdio_pins>, <&rgmii1_pins>;
 };
 
 &gmac0 {
@@ -171,18 +153,22 @@
 &switch0 {
 	ports {
 		port0: port@0 {
+			label = "lan1";
 			status = "okay";
 		};
 
 		port1: port@1 {
+			label = "lan2";
 			status = "okay";
 		};
 
 		port2: port@2 {
+			label = "lan3";
 			status = "okay";
 		};
 
 		port3: port@3 {
+			label = "lan4";
 			status = "okay";
 		};
 
@@ -195,29 +181,9 @@
 	};
 };
 
-&port0{
-	label = "lan1";
-};
-
-&port1{
-	label = "lan2";
-};
-
-&port2{
-	label = "lan3";
-};
-
-&port3{
-	label = "lan4";
-};
-
 &state_default {
 	gpio {
-		groups = "rgmii2", "jtag", "wdt";
+		groups = "i2c", "jtag", "wdt";
 		function = "gpio";
 	};
-};
-
-&uartlite2 {
-	status = "okay";
 };
